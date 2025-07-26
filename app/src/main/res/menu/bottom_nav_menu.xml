@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/homeFragment" android:title="Principal" android:icon="@drawable/home" />
+    <item android:id="@+id/registerFragment" android:title="Registrar" android:icon="@drawable/prueba"  />
+    <item android:id="@+id/viewDataFragment" android:title="Listado" android:icon="@drawable/list"  />
+    <item android:id="@+id/aboutFragment" android:title="Info" android:icon="@drawable/info"  />
+</menu>
