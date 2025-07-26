@@ -9,12 +9,10 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_logo"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         app:cardCornerRadius="75dp"
         app:cardElevation="8dp"
-        app:layout_constraintWidth_percent="0.4"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintBottom_toTopOf="@+id/tvAppName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,9 +23,9 @@
             android:id="@+id/ivAppLogo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="Logo de la App"
             android:scaleType="centerCrop"
-            android:src="@drawable/logo_ucateci"
-            android:contentDescription="Logo de la App" />
+            android:src="@drawable/logo_ucateci" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
@@ -54,7 +52,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAppName" />
-
 
     <View
         android:id="@+id/viewDivider"

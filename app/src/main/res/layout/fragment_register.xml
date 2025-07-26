@@ -22,13 +22,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.5"
-            app:srcCompat="@drawable/img" />
+            app:srcCompat="@drawable/logo_ucateci" />
 
         <TextView
             android:id="@+id/tvHeaderTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="4dp"
             android:text="Registro de Estudiantes"
             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
             app:layout_constraintEnd_toEndOf="parent"
@@ -203,14 +203,7 @@
                 android:text="Actualizar"
                 app:backgroundTint="@color/naranja_actualizar" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnEliminar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="Eliminar"
-                app:backgroundTint="@color/rojo_eliminar" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

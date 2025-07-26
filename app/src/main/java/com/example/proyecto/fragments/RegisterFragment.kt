@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -30,14 +31,13 @@ class RegisterFragment : Fragment() {
     private lateinit var etTelefono: EditText
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Infla el layout para este fragmento
         return inflater.inflate(R.layout.fragment_register, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializa las vistas usando 'view.findViewById'
+        // Inicializa las vistas
         etId = view.findViewById(R.id.etId)
         etNombre = view.findViewById(R.id.etNombre)
         etApellido = view.findViewById(R.id.etApellido)
@@ -51,56 +51,78 @@ class RegisterFragment : Fragment() {
         view.findViewById<Button>(R.id.btnRegistrar).setOnClickListener { registrar() }
         view.findViewById<Button>(R.id.btnBuscar).setOnClickListener { buscar() }
         view.findViewById<Button>(R.id.btnActualizar).setOnClickListener { actualizar() }
-        view.findViewById<Button>(R.id.btnEliminar).setOnClickListener { eliminar() }
+        //view.findViewById<Button>(R.id.btnEliminar).setOnClickListener { eliminar() }
 
         etFechaNacimiento.setOnClickListener { mostrarDatePicker() }
 
-        // Listener para formatear el número de teléfono
-        etTelefono.addTextChangedListener(object : TextWatcher {
-            private var isFormatting: Boolean = false
-            private var deletingHyphen: Boolean = false
-            private var hyphenStart: Int = 0
+        // Auto-capitalización para Nombre y Apellido
+        etNombre.addTextChangedListener(CapitalizeTextWatcher(etNombre))
+        etApellido.addTextChangedListener(CapitalizeTextWatcher(etApellido))
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                if (isFormatting) return
-                hyphenStart = s?.indexOf("-") ?: -1
-                deletingHyphen = count == 1 && after == 0 && start > 0 && start == hyphenStart
+        // Formato para número de teléfono (XXX) XXX-XXXX
+        etTelefono.addTextChangedListener(PhoneTextWatcher(etTelefono))
+    }
+
+    // Clase interna para capitalizar la primera letra de cada palabra
+    private class CapitalizeTextWatcher(private val editText: EditText) : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            val original = s.toString()
+            if (original.isEmpty()) return
+
+            editText.removeTextChangedListener(this)
+            val capitalized = original.split(" ").joinToString(" ") { word ->
+                word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }
+            if (original != capitalized) {
+                editText.setText(capitalized)
+                editText.setSelection(capitalized.length)
+            }
+            editText.addTextChangedListener(this)
+        }
+    }
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    // Clase interna para el formato del teléfono
+    private class PhoneTextWatcher(private val editText: EditText) : TextWatcher {
+        private var isFormatting = false
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {
+            if (isFormatting) return
+            isFormatting = true
 
-            override fun afterTextChanged(s: Editable?) {
-                if (isFormatting) return
-                isFormatting = true
+            val digits = s.toString().filter { it.isDigit() }
+            val formatted = StringBuilder()
 
-                if (deletingHyphen && hyphenStart != -1) {
-                    s?.delete(hyphenStart - 1, hyphenStart)
-                }
-
-                val digits = s.toString().filter { it.isDigit() }
-                val formatted = StringBuilder()
-
-                if (digits.length >= 4) {
-                    formatted.append(digits.substring(0, 4))
-                    if (digits.length > 4) {
-                        formatted.append("-")
-                        formatted.append(digits.substring(4, minOf(8, digits.length)))
+            try {
+                if (digits.length >= 3) {
+                    formatted.append("(${digits.substring(0, 3)}) ")
+                    if (digits.length >= 6) {
+                        formatted.append(digits.substring(3, 6))
+                        if (digits.length > 6) {
+                            formatted.append("-")
+                            formatted.append(digits.substring(6, minOf(10, digits.length)))
+                        }
+                    } else if (digits.length > 3) {
+                        formatted.append(digits.substring(3))
                     }
                 } else {
                     formatted.append(digits)
                 }
-
-                s?.replace(0, s.length, formatted.toString())
-                etTelefono.setSelection(s?.length ?: 0)
-                isFormatting = false
+                editText.setText(formatted.toString())
+                editText.setSelection(editText.text.length)
+            } catch (e: Exception) {
+                s?.clear()
             }
-        })
+            isFormatting = false
+        }
     }
 
     private fun mostrarDatePicker() {
         val calendario = Calendar.getInstance()
-        val datePickerDialog = DatePickerDialog(
-            requireContext(), // Usa requireContext() en lugar de 'this'
+        DatePickerDialog(
+            requireContext(),
             { _, year, month, dayOfMonth ->
                 val fechaSeleccionada = "$dayOfMonth/${month + 1}/$year"
                 etFechaNacimiento.setText(fechaSeleccionada)
@@ -108,8 +130,7 @@ class RegisterFragment : Fragment() {
             calendario.get(Calendar.YEAR),
             calendario.get(Calendar.MONTH),
             calendario.get(Calendar.DAY_OF_MONTH)
-        )
-        datePickerDialog.show()
+        ).show()
     }
 
     private fun limpiarCampos() {
@@ -132,10 +153,8 @@ class RegisterFragment : Fragment() {
 
         if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.isNotEmpty()) {
             val sexo = view?.findViewById<RadioButton>(sexoId)?.text.toString()
-
             val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
             val baseDeDatos = admin.writableDatabase
-
             val registro = ContentValues().apply {
                 put("id", id)
                 put("nombre", nombre)
@@ -146,7 +165,6 @@ class RegisterFragment : Fragment() {
             }
             baseDeDatos.insert("estudiantes", null, registro)
             baseDeDatos.close()
-
             limpiarCampos()
             Toast.makeText(requireContext(), "Estudiante registrado exitosamente.", Toast.LENGTH_SHORT).show()
         } else {
@@ -160,7 +178,6 @@ class RegisterFragment : Fragment() {
             val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
             val baseDeDatos = admin.readableDatabase
             val cursor = baseDeDatos.rawQuery("SELECT nombre, apellido, fecha_nacimiento, sexo, telefono FROM estudiantes WHERE id = ?", arrayOf(id))
-
             if (cursor.moveToFirst()) {
                 etNombre.setText(cursor.getString(0))
                 etApellido.setText(cursor.getString(1))
@@ -189,10 +206,8 @@ class RegisterFragment : Fragment() {
 
         if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.isNotEmpty()) {
             val sexo = view?.findViewById<RadioButton>(sexoId)?.text.toString()
-
             val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
             val baseDeDatos = admin.writableDatabase
-
             val registro = ContentValues().apply {
                 put("nombre", nombre)
                 put("apellido", apellido)
@@ -202,7 +217,6 @@ class RegisterFragment : Fragment() {
             }
             val cantidad = baseDeDatos.update("estudiantes", registro, "id=?", arrayOf(id))
             baseDeDatos.close()
-
             if (cantidad > 0) {
                 Toast.makeText(requireContext(), "Datos actualizados exitosamente.", Toast.LENGTH_SHORT).show()
             } else {
@@ -221,9 +235,7 @@ class RegisterFragment : Fragment() {
             val baseDeDatos = admin.writableDatabase
             val cantidad = baseDeDatos.delete("estudiantes", "id=?", arrayOf(id))
             baseDeDatos.close()
-
             limpiarCampos()
-
             if (cantidad > 0) {
                 Toast.makeText(requireContext(), "Estudiante eliminado exitosamente.", Toast.LENGTH_SHORT).show()
             } else {
