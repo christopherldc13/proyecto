@@ -65,7 +65,7 @@ class ViewDataFragment : Fragment(), StudentAdapter.OnItemClickListener {
         val tempStudentList = mutableListOf<Student>()
         val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
         val db = admin.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM estudiantes", null)
+        val cursor = db.rawQuery("SELECT * FROM estudiantes ORDER BY Nombre DESC", null)
 
         if (cursor.moveToFirst()) {
             do {

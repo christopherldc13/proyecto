@@ -203,7 +203,14 @@
                 android:text="Actualizar"
                 app:backgroundTint="@color/naranja_actualizar" />
 
-
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLimpiar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Limpiar"
+                app:backgroundTint="#4FC3F7" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
