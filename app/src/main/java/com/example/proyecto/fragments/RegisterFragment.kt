@@ -9,11 +9,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.proyecto.AdminSQLiteOpenHelper
 import com.example.proyecto.R
@@ -21,7 +17,6 @@ import java.util.*
 
 class RegisterFragment : Fragment() {
 
-    // Vistas de la UI
     private lateinit var etId: EditText
     private lateinit var etNombre: EditText
     private lateinit var etApellido: EditText
@@ -31,11 +26,10 @@ class RegisterFragment : Fragment() {
     private lateinit var rbFemenino: RadioButton
     private lateinit var etTelefono: EditText
 
-    // Botones para controlar su estado
     private lateinit var btnRegistrar: Button
     private lateinit var btnActualizar: Button
     private lateinit var btnBuscar: Button
-    private lateinit var btnLimpiar: Button // <-- LÍNEA AÑADIDA
+    private lateinit var btnLimpiar: Button
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_register, container, false)
@@ -44,7 +38,6 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializa las vistas y botones
         etId = view.findViewById(R.id.etId)
         etNombre = view.findViewById(R.id.etNombre)
         etApellido = view.findViewById(R.id.etApellido)
@@ -56,16 +49,14 @@ class RegisterFragment : Fragment() {
         btnRegistrar = view.findViewById(R.id.btnRegistrar)
         btnBuscar = view.findViewById(R.id.btnBuscar)
         btnActualizar = view.findViewById(R.id.btnActualizar)
-        btnLimpiar = view.findViewById(R.id.btnLimpiar) // <-- LÍNEA AÑADIDA
+        btnLimpiar = view.findViewById(R.id.btnLimpiar)
 
-        // Configura los listeners
         btnRegistrar.setOnClickListener { registrar() }
         btnBuscar.setOnClickListener { buscar() }
         btnActualizar.setOnClickListener { actualizar() }
-        btnLimpiar.setOnClickListener { limpiarCampos() } // <-- LÍNEA AÑADIDA
+        btnLimpiar.setOnClickListener { limpiarCampos() }
         etFechaNacimiento.setOnClickListener { mostrarDatePicker() }
 
-        // Configura TextWatchers
         etNombre.addTextChangedListener(CapitalizeTextWatcher(etNombre))
         etApellido.addTextChangedListener(CapitalizeTextWatcher(etApellido))
         etTelefono.addTextChangedListener(PhoneTextWatcher(etTelefono))
@@ -90,7 +81,7 @@ class RegisterFragment : Fragment() {
         rgSexo.clearCheck()
         etTelefono.setText("")
         etId.requestFocus()
-        actualizarEstadoBotones(busquedaExitosa = false)
+        actualizarEstadoBotones(false)
     }
 
     private fun registrar() {
@@ -105,7 +96,6 @@ class RegisterFragment : Fragment() {
             val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
             val baseDeDatos = admin.writableDatabase
 
-            // Llama a la validación completa para el registro
             val errorMessage = checkExistingRecordForRegister(baseDeDatos, id, nombre, apellido, telefono)
             if (errorMessage != null) {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
@@ -143,7 +133,6 @@ class RegisterFragment : Fragment() {
             val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
             val baseDeDatos = admin.writableDatabase
 
-            // Llama a la validación completa para la actualización
             val errorMessage = checkExistingRecordForUpdate(baseDeDatos, id, nombre, apellido, telefono)
             if (errorMessage != null) {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
@@ -173,10 +162,6 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    /**
-     * Valida para REGISTRAR.
-     * Verifica si el ID, el nombre completo O el teléfono ya existen.
-     */
     private fun checkExistingRecordForRegister(db: SQLiteDatabase, id: String, nombre: String, apellido: String, telefono: String): String? {
         db.query("estudiantes", arrayOf("id"), "id = ?", arrayOf(id), null, null, null).use { cursor ->
             if (cursor.moveToFirst()) return "El ID ya se encuentra registrado."
@@ -190,10 +175,6 @@ class RegisterFragment : Fragment() {
         return null
     }
 
-    /**
-     * Valida para ACTUALIZAR.
-     * Verifica si el nombre completo O el teléfono ya existen en OTRO registro.
-     */
     private fun checkExistingRecordForUpdate(db: SQLiteDatabase, idToExclude: String, nombre: String, apellido: String, telefono: String): String? {
         db.query("estudiantes", arrayOf("id"), "LOWER(nombre) = ? AND LOWER(apellido) = ? AND id != ?", arrayOf(nombre.lowercase(), apellido.lowercase(), idToExclude), null, null, null).use { cursor ->
             if (cursor.moveToFirst()) return "El nombre y apellido ya están registrados por otro estudiante."
@@ -217,7 +198,7 @@ class RegisterFragment : Fragment() {
                 if (cursor.getString(3) == "Masculino") rbMasculino.isChecked = true else rbFemenino.isChecked = true
                 etTelefono.setText(cursor.getString(4))
                 Toast.makeText(requireContext(), "Estudiante encontrado. Puede actualizar los datos.", Toast.LENGTH_SHORT).show()
-                actualizarEstadoBotones(busquedaExitosa = true)
+                actualizarEstadoBotones(true)
             } else {
                 Toast.makeText(requireContext(), "No se encontró el estudiante.", Toast.LENGTH_SHORT).show()
                 limpiarCampos()
@@ -251,13 +232,20 @@ class RegisterFragment : Fragment() {
             if (original.isEmpty()) return
 
             editText.removeTextChangedListener(this)
-            val capitalized = original.split(" ").joinToString(" ") { word ->
-                word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+            // Solo permitir letras y espacios
+            val filtrado = original.filter { it.isLetter() || it.isWhitespace() }
+
+            // Capitalizar
+            val capitalizado = filtrado.split(" ").joinToString(" ") { palabra ->
+                palabra.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }
-            if (original != capitalized) {
-                editText.setText(capitalized)
-                editText.setSelection(capitalized.length)
+
+            if (original != capitalizado) {
+                editText.setText(capitalizado)
+                editText.setSelection(capitalizado.length)
             }
+
             editText.addTextChangedListener(this)
         }
     }
