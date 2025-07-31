@@ -59,6 +59,18 @@
             app:layout_constraintTop_toTopOf="@id/icon_cake"
             tools:text="25/07/2025" />
 
+        <TextView
+            android:id="@+id/tvStudentAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="?android:attr/textColorSecondary"
+            app:layout_constraintStart_toEndOf="@id/tvStudentBirthday"
+            app:layout_constraintBottom_toBottomOf="@id/tvStudentBirthday"
+            app:layout_constraintTop_toTopOf="@id/tvStudentBirthday"
+            tools:text="(20 años)" />
+
         <ImageView
             android:id="@+id/icon_gender"
             android:layout_width="18dp"
@@ -101,13 +113,35 @@
             app:layout_constraintTop_toTopOf="@id/icon_phone"
             tools:text="(829) 574-3442" />
 
+        <ImageView
+            android:id="@+id/icon_email"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="8dp"
+            app:srcCompat="@drawable/mail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/icon_phone"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:id="@+id/tvStudentEmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            app:layout_constraintStart_toEndOf="@id/icon_email"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/icon_email"
+            app:layout_constraintTop_toTopOf="@id/icon_email"
+            tools:text="20221018@miucateci.edu.do" />
+
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginTop="16dp"
             android:background="?attr/colorOutlineVariant"
-            app:layout_constraintTop_toBottomOf="@id/icon_phone"
+            app:layout_constraintTop_toBottomOf="@id/icon_email"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
