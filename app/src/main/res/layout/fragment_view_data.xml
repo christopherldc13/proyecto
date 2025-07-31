@@ -29,6 +29,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivListIcon" />
 
+    <ImageButton
+        android:id="@+id/btnExportPdf"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Exportar PDF"
+        app:layout_constraintBottom_toBottomOf="@id/inputLayoutSearch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/inputLayoutSearch"
+        app:srcCompat="@drawable/document"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
+    <ImageButton
+        android:id="@+id/btnSort"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Ordenar lista"
+        app:layout_constraintBottom_toBottomOf="@id/inputLayoutSearch"
+        app:layout_constraintEnd_toStartOf="@id/btnExportPdf"
+        app:layout_constraintTop_toTopOf="@id/inputLayoutSearch"
+        app:srcCompat="@drawable/sort"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayoutSearch"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -37,7 +62,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:hint="Buscar por nombre o ID"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnSort"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvListadoTitulo">
 
