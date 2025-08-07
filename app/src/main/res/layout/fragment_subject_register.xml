@@ -4,7 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.RegisterFragment">
+    tools:context=".fragments.SubjectRegisterFragment">
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="27dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Volver atrás"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back"
+        app:tint="?attr/colorOnSurface" />
 
     <ImageView
         android:id="@+id/ivHeaderLogo"
@@ -24,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Registro de Estudiantes"
+        android:text="Registro de Asignaturas"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,121 +61,119 @@
             android:paddingTop="16dp"
             android:paddingBottom="16dp">
 
-            <!-- Campo ID -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutId"
+                android:id="@+id/inputLayoutAsignaturaCodigo"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="ID del Estudiante">
-
+                android:hint="Código de la Asignatura">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etId"
+                    android:id="@+id/etAsignaturaCodigo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLines="1" />
+                    android:inputType="text"
+                    android:maxLines="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo Nombre -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutNombre"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/inputLayoutAsignaturaNombre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Nombre">
-
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Nombre de la Asignatura">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etNombre"
+                    android:id="@+id/etAsignaturaNombre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:maxLines="1" />
+                    android:inputType="textCapWords"
+                    android:maxLines="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo Apellido -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutApellido"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/inputLayoutAsignaturaProfesor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Apellido">
-
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Profesor">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etApellido"
+                    android:id="@+id/etAsignaturaProfesor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:maxLines="1" />
+                    android:maxLines="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo Fecha de Nacimiento -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutFechaNacimiento"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/inputLayoutAsignaturaCurso"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="Fecha de Nacimiento">
-
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Curso (Ej: J202)">
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etFechaNacimiento"
+                    android:id="@+id/etAsignaturaCurso"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:maxLines="1" />
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo Sexo -->
-            <TextView
-                android:id="@+id/tvLabelSexo"
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutAsignaturaDia"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Sexo"
-                android:textSize="16sp" />
+                android:hint="Día">
+                <AutoCompleteTextView
+                    android:id="@+id/etAsignaturaDia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <RadioGroup
-                android:id="@+id/rgSexo"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/timeLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <RadioButton
-                    android:id="@+id/rbMasculino"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputLayoutHoraInicio"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Masculino" />
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:hint="Hora Inicio">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHoraInicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <RadioButton
-                    android:id="@+id/rbFemenino"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/inputLayoutHoraFin"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="Femenino" />
-            </RadioGroup>
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="Hora Fin">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHoraFin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
-            <!-- Campo Teléfono -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/inputLayoutTelefono"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Teléfono">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etTelefono"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Botones Registrar / Buscar -->
             <LinearLayout
                 android:id="@+id/buttonLayout"
                 android:layout_width="match_parent"
@@ -188,7 +199,6 @@
                     android:text="Buscar" />
             </LinearLayout>
 
-            <!-- Botones Actualizar / Limpiar -->
             <LinearLayout
                 android:id="@+id/buttonLayout2"
                 android:layout_width="match_parent"
@@ -214,15 +224,14 @@
                     app:backgroundTint="#4FC3F7" />
             </LinearLayout>
 
-            <!-- Botón para ir al registro de asignatura -->
             <TextView
-                android:id="@+id/tvGoToSubjectRegistration"
+                android:id="@+id/tvGoToSubjectList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:padding="8dp"
-                android:text="Ir al registro de asignaturas"
+                android:text="Ver listado de asignaturas"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold" />
         </LinearLayout>

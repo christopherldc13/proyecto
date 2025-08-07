@@ -5,18 +5,26 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.text.Editable
+import android.text.Html
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.proyecto.AdminSQLiteOpenHelper
 import com.example.proyecto.R
 import java.util.*
 
 class RegisterFragment : Fragment() {
 
+    // Variables para la base de datos
+    private lateinit var admin: AdminSQLiteOpenHelper
+    private lateinit var db: SQLiteDatabase
+
+    // Vistas de la UI
     private lateinit var etId: EditText
     private lateinit var etNombre: EditText
     private lateinit var etApellido: EditText
@@ -25,11 +33,11 @@ class RegisterFragment : Fragment() {
     private lateinit var rbMasculino: RadioButton
     private lateinit var rbFemenino: RadioButton
     private lateinit var etTelefono: EditText
-
     private lateinit var btnRegistrar: Button
     private lateinit var btnActualizar: Button
     private lateinit var btnBuscar: Button
     private lateinit var btnLimpiar: Button
+    private lateinit var tvGoToSubjectRegistration: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_register, container, false)
@@ -38,6 +46,11 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Abrir la conexión a la base de datos UNA SOLA VEZ
+        admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
+        db = admin.writableDatabase
+
+        // Inicializa las vistas y botones
         etId = view.findViewById(R.id.etId)
         etNombre = view.findViewById(R.id.etNombre)
         etApellido = view.findViewById(R.id.etApellido)
@@ -50,12 +63,24 @@ class RegisterFragment : Fragment() {
         btnBuscar = view.findViewById(R.id.btnBuscar)
         btnActualizar = view.findViewById(R.id.btnActualizar)
         btnLimpiar = view.findViewById(R.id.btnLimpiar)
+        tvGoToSubjectRegistration = view.findViewById(R.id.tvGoToSubjectRegistration)
 
+        // Configura los listeners
         btnRegistrar.setOnClickListener { registrar() }
         btnBuscar.setOnClickListener { buscar() }
         btnActualizar.setOnClickListener { actualizar() }
         btnLimpiar.setOnClickListener { limpiarCampos() }
         etFechaNacimiento.setOnClickListener { mostrarDatePicker() }
+
+        val textoHtml = "¿Quieres registrar asignaturas? <b><u>PULSE AQUÍ</u></b>"
+        tvGoToSubjectRegistration.text = Html.fromHtml(textoHtml, Html.FROM_HTML_MODE_LEGACY)
+        tvGoToSubjectRegistration.setOnClickListener {
+            findNavController().navigate(R.id.action_registerFragment_to_subjectRegisterFragment)
+        }
+
+        val noNumberFilter = InputFilter { source, _, _, _, _, _ -> source.filter { !it.isDigit() } }
+        etNombre.filters = arrayOf(noNumberFilter)
+        etApellido.filters = arrayOf(noNumberFilter)
 
         etNombre.addTextChangedListener(CapitalizeTextWatcher(etNombre))
         etApellido.addTextChangedListener(CapitalizeTextWatcher(etApellido))
@@ -65,6 +90,12 @@ class RegisterFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         limpiarCampos()
+    }
+
+    // Cierra la conexión SOLO cuando la vista del fragmento se destruye
+    override fun onDestroyView() {
+        super.onDestroyView()
+        db.close()
     }
 
     private fun actualizarEstadoBotones(busquedaExitosa: Boolean) {
@@ -92,14 +123,10 @@ class RegisterFragment : Fragment() {
         val fechaNacimiento = etFechaNacimiento.text.toString()
         val sexoId = rgSexo.checkedRadioButtonId
 
-        if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.length == 14) {
-            val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
-            val baseDeDatos = admin.writableDatabase
-
-            val errorMessage = checkExistingRecordForRegister(baseDeDatos, id, nombre, apellido, telefono)
+        if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.length >= 14) {
+            val errorMessage = checkExistingRecordForRegister(id, nombre, apellido, telefono)
             if (errorMessage != null) {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                baseDeDatos.close()
                 return
             }
 
@@ -112,8 +139,7 @@ class RegisterFragment : Fragment() {
                 put("sexo", sexo)
                 put("telefono", telefono)
             }
-            baseDeDatos.insert("estudiantes", null, registro)
-            baseDeDatos.close()
+            db.insert("estudiantes", null, registro)
             limpiarCampos()
             Toast.makeText(requireContext(), "Estudiante registrado exitosamente.", Toast.LENGTH_SHORT).show()
         } else {
@@ -129,14 +155,10 @@ class RegisterFragment : Fragment() {
         val fechaNacimiento = etFechaNacimiento.text.toString()
         val sexoId = rgSexo.checkedRadioButtonId
 
-        if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.length == 14) {
-            val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
-            val baseDeDatos = admin.writableDatabase
-
-            val errorMessage = checkExistingRecordForUpdate(baseDeDatos, id, nombre, apellido, telefono)
+        if (id.isNotEmpty() && nombre.isNotEmpty() && apellido.isNotEmpty() && fechaNacimiento.isNotEmpty() && sexoId != -1 && telefono.length >= 14) {
+            val errorMessage = checkExistingRecordForUpdate(id, nombre, apellido, telefono)
             if (errorMessage != null) {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                baseDeDatos.close()
                 return
             }
 
@@ -148,8 +170,7 @@ class RegisterFragment : Fragment() {
                 put("sexo", sexo)
                 put("telefono", telefono)
             }
-            val cantidad = baseDeDatos.update("estudiantes", registro, "id=?", arrayOf(id))
-            baseDeDatos.close()
+            val cantidad = db.update("estudiantes", registro, "id=?", arrayOf(id))
 
             if (cantidad > 0) {
                 Toast.makeText(requireContext(), "Datos actualizados exitosamente.", Toast.LENGTH_SHORT).show()
@@ -162,35 +183,23 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    private fun checkExistingRecordForRegister(db: SQLiteDatabase, id: String, nombre: String, apellido: String, telefono: String): String? {
-        db.query("estudiantes", arrayOf("id"), "id = ?", arrayOf(id), null, null, null).use { cursor ->
-            if (cursor.moveToFirst()) return "El ID ya se encuentra registrado."
-        }
-        db.query("estudiantes", arrayOf("id"), "LOWER(nombre) = ? AND LOWER(apellido) = ?", arrayOf(nombre.lowercase(), apellido.lowercase()), null, null, null).use { cursor ->
-            if (cursor.moveToFirst()) return "El nombre y apellido ya se encuentran registrados."
-        }
-        db.query("estudiantes", arrayOf("id"), "telefono = ?", arrayOf(telefono), null, null, null).use { cursor ->
-            if (cursor.moveToFirst()) return "El número de teléfono ya ha sido registrado."
-        }
+    private fun checkExistingRecordForRegister(id: String, nombre: String, apellido: String, telefono: String): String? {
+        db.query("estudiantes", arrayOf("id"), "id = ?", arrayOf(id), null, null, null).use { if (it.moveToFirst()) return "El ID ya se encuentra registrado." }
+        db.query("estudiantes", arrayOf("id"), "LOWER(nombre) = ? AND LOWER(apellido) = ?", arrayOf(nombre.lowercase(), apellido.lowercase()), null, null, null).use { if (it.moveToFirst()) return "El nombre y apellido ya se encuentran registrados." }
+        db.query("estudiantes", arrayOf("id"), "telefono = ?", arrayOf(telefono), null, null, null).use { if (it.moveToFirst()) return "El número de teléfono ya ha sido registrado." }
         return null
     }
 
-    private fun checkExistingRecordForUpdate(db: SQLiteDatabase, idToExclude: String, nombre: String, apellido: String, telefono: String): String? {
-        db.query("estudiantes", arrayOf("id"), "LOWER(nombre) = ? AND LOWER(apellido) = ? AND id != ?", arrayOf(nombre.lowercase(), apellido.lowercase(), idToExclude), null, null, null).use { cursor ->
-            if (cursor.moveToFirst()) return "El nombre y apellido ya están registrados por otro estudiante."
-        }
-        db.query("estudiantes", arrayOf("id"), "telefono = ? AND id != ?", arrayOf(telefono, idToExclude), null, null, null).use { cursor ->
-            if (cursor.moveToFirst()) return "El número de teléfono ya está registrado por otro estudiante."
-        }
+    private fun checkExistingRecordForUpdate(idToExclude: String, nombre: String, apellido: String, telefono: String): String? {
+        db.query("estudiantes", arrayOf("id"), "LOWER(nombre) = ? AND LOWER(apellido) = ? AND id != ?", arrayOf(nombre.lowercase(), apellido.lowercase(), idToExclude), null, null, null).use { if (it.moveToFirst()) return "El nombre y apellido ya están registrados por otro estudiante." }
+        db.query("estudiantes", arrayOf("id"), "telefono = ? AND id != ?", arrayOf(telefono, idToExclude), null, null, null).use { if (it.moveToFirst()) return "El número de teléfono ya está registrado por otro estudiante." }
         return null
     }
 
     private fun buscar() {
         val id = etId.text.toString().trim()
         if (id.isNotEmpty()) {
-            val admin = AdminSQLiteOpenHelper(requireContext(), "administracion", null, 1)
-            val baseDeDatos = admin.readableDatabase
-            val cursor = baseDeDatos.rawQuery("SELECT nombre, apellido, fecha_nacimiento, sexo, telefono FROM estudiantes WHERE id = ?", arrayOf(id))
+            val cursor = db.rawQuery("SELECT nombre, apellido, fecha_nacimiento, sexo, telefono FROM estudiantes WHERE id = ?", arrayOf(id))
             if (cursor.moveToFirst()) {
                 etNombre.setText(cursor.getString(0))
                 etApellido.setText(cursor.getString(1))
@@ -204,7 +213,6 @@ class RegisterFragment : Fragment() {
                 limpiarCampos()
             }
             cursor.close()
-            baseDeDatos.close()
         } else {
             Toast.makeText(requireContext(), "Debes ingresar un ID para buscar.", Toast.LENGTH_SHORT).show()
         }
@@ -230,22 +238,14 @@ class RegisterFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             val original = s.toString()
             if (original.isEmpty()) return
-
             editText.removeTextChangedListener(this)
-
-            // Solo permitir letras y espacios
-            val filtrado = original.filter { it.isLetter() || it.isWhitespace() }
-
-            // Capitalizar
-            val capitalizado = filtrado.split(" ").joinToString(" ") { palabra ->
-                palabra.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            val capitalized = original.split(" ").joinToString(" ") { word ->
+                word.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
             }
-
-            if (original != capitalizado) {
-                editText.setText(capitalizado)
-                editText.setSelection(capitalizado.length)
+            if (original != capitalized) {
+                editText.setText(capitalized)
+                editText.setSelection(capitalized.length)
             }
-
             editText.addTextChangedListener(this)
         }
     }
@@ -257,20 +257,15 @@ class RegisterFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             if (isFormatting) return
             isFormatting = true
-
             val digits = s.toString().filter { it.isDigit() }
             val formatted = StringBuilder()
-
             try {
                 if (digits.length >= 3) {
-                    formatted.append("(${digits.substring(0, 3)}) ")
+                    formatted.append("(").append(digits.substring(0, 3)).append(") ")
                     if (digits.length >= 6) {
-                        formatted.append(digits.substring(3, 6))
-                        if (digits.length > 6) {
-                            formatted.append("-")
-                            formatted.append(digits.substring(6, minOf(10, digits.length)))
-                        }
-                    } else if (digits.length > 3) {
+                        formatted.append(digits.substring(3, 6)).append("-")
+                        formatted.append(digits.substring(6, minOf(10, digits.length)))
+                    } else {
                         formatted.append(digits.substring(3))
                     }
                 } else {

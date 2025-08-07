@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">UCATECI APP</string>
+
+    <string-array name="dias_de_la_semana">
+        <item>Lunes</item>
+        <item>Martes</item>
+        <item>Miércoles</item>
+        <item>Jueves</item>
+        <item>Viernes</item>
+        <item>Sábado</item>
+    </string-array>
 </resources>

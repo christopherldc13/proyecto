@@ -9,10 +9,11 @@ class AdminSQLiteOpenHelper(context: Context, name: String, factory: SQLiteDatab
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL("CREATE TABLE estudiantes (id TEXT PRIMARY KEY, nombre TEXT, apellido TEXT, fecha_nacimiento TEXT, sexo TEXT, telefono TEXT)")
-    }
+        db.execSQL("CREATE TABLE asignaturas (codigo TEXT PRIMARY KEY, nombre TEXT, profesor TEXT, curso TEXT, dia TEXT, hora_inicio TEXT, hora_fin TEXT)")    }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.execSQL("DROP TABLE IF EXISTS estudiantes")
+        db.execSQL("DROP TABLE IF EXISTS asignaturas")
         onCreate(db)
     }
 }
