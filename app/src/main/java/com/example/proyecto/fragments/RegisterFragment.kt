@@ -78,9 +78,18 @@ class RegisterFragment : Fragment() {
             findNavController().navigate(R.id.action_registerFragment_to_subjectRegisterFragment)
         }
 
-        val noNumberFilter = InputFilter { source, _, _, _, _, _ -> source.filter { !it.isDigit() } }
-        etNombre.filters = arrayOf(noNumberFilter)
-        etApellido.filters = arrayOf(noNumberFilter)
+        // Filtro para permitir solo letras y espacios, ignorando cualquier otro carácter
+        val soloLetrasFilter = InputFilter { source, _, _, _, _, _ ->
+            val soloValidos = source.filter { it.isLetter() || it.isWhitespace() }
+            if (soloValidos.length == source.length) {
+                source // Todo válido, deja pasar
+            } else {
+                soloValidos // Retorna solo los válidos, ignora el resto
+            }
+        }
+
+        etNombre.filters = arrayOf(soloLetrasFilter)
+        etApellido.filters = arrayOf(soloLetrasFilter)
 
         etNombre.addTextChangedListener(CapitalizeTextWatcher(etNombre))
         etApellido.addTextChangedListener(CapitalizeTextWatcher(etApellido))
@@ -92,7 +101,6 @@ class RegisterFragment : Fragment() {
         limpiarCampos()
     }
 
-    // Cierra la conexión SOLO cuando la vista del fragmento se destruye
     override fun onDestroyView() {
         super.onDestroyView()
         db.close()
